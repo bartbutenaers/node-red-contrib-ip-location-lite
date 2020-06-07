@@ -93,7 +93,7 @@ module.exports = function(RED) {
                 return;
             }
             
-            var statusText = "country " + geoInfo.country + "(" + geoInfo.region + ")";
+            var statusText = "country " + geoInfo.country + " (" + geoInfo.region + ")";
             node.status({fill:"blue",shape:"dot",text:statusText});
             
             node.send(msg);   
