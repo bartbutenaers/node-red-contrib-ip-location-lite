@@ -1,0 +1,90 @@
+<!--
+  Copyright 2020, Bart Butenaers
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="ip-location-lite">
+    <div class="form-row">
+        <label for="node-input-licenseKey"><i class="fa fa-key"></i> License key</label>
+        <input type="password" id="node-input-licenseKey">
+    </div>
+    <div class="form-row">
+        <label for="node-input-typed-inputField"><i class="fa fa-sign-in"></i> Input field</label>
+        <input id="node-input-typed-inputField" type="text" style="width: 70%">
+        <input id="node-input-inputField" type="hidden">
+    </div>  
+    <div class="form-row">
+        <label for="node-input-typed-outputField"><i class="fa fa-sign-out"></i> Output field</label>
+        <input id="node-input-typed-outputField" type="text" style="width: 70%">
+        <input id="node-input-outputField" type="hidden">
+    </div>
+    <br>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('ip-location-lite', {
+        category: 'input',
+        color:    'rgb(231, 231, 174)',
+        defaults: {
+            name: {value: ""},
+            inputField: {value:"payload", required:true},
+            outputField: {value:"payload", required:true}
+        },
+        credentials: {
+            licenseKey: {type:"password"}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "arrows.png",
+        label: function() {
+            return this.name || "Geo ip lite";
+        },
+        oneditprepare: function() {
+            var node = this;
+            
+            // Show the inputField value in a typedinput element (dropdown with only 'msg')
+            var inputValue = $("#node-input-inputField").val() || '';
+            $("#node-input-typed-inputField").typedInput({types:['msg']});
+            $("#node-input-typed-inputField").typedInput('type',node.inputType);
+            $("#node-input-typed-inputField").typedInput('value',inputValue);
+            
+            // Show the outputField value in a typedinput element (dropdown with only 'msg')
+            var outputValue = $("#node-input-outputField").val() || '';
+            $("#node-input-typed-outputField").typedInput({types:['msg']});
+            $("#node-input-typed-outputField").typedInput('type','msg');
+            $("#node-input-typed-outputField").typedInput('value',outputValue);
+        },
+        oneditsave: function() {
+            var node = this;
+            
+            // Copy the inputField value from the typedinput element to the inputField element
+            var inputValue = $("#node-input-typed-inputField").typedInput('value');
+            $("#node-input-inputField").val(inputValue);
+            
+            // Copy the outputField value from the typedinput element to the outputField element
+            var outputValue = $("#node-input-typed-outputField").typedInput('value');
+            $("#node-input-outputField").val(outputValue);
+        }
+    });
+</script>
+
+<script type="text/x-red" data-help-name="ip-location-lite">
+    <p>Node-Red node to determine the geographic location (country, region and city) of an IP address.</p>
+    <p><strong>License key:</strong><br/>
+    A license key is only required to download data updates from Maxmind.  Create a free account [here](https://www.maxmind.com/en/geolite2/signup), where you can generate a license key.</p>
+    <p><strong>Input field:</strong><br/>
+    The name of the field in the input message, where the IP address needs to be specified.</p>
+    <p><strong>Output field:</strong><br/>
+    The name of the field in the output message, where the geographic location information will be stored.</p> 
+</script>
