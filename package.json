@@ -1,0 +1,32 @@
+{
+    "name": "node-red-contrib-ip-location",
+    "version": "1.0.0",
+    "description": "A Node-Red node to determine the geographic location of an IP address.",
+    "dependencies": {
+        "geoip-lite": "^1.4.2"
+    },
+    "author": {
+        "name": "Bart Butenaers"
+    },
+    "license": "Apache-2.0",
+    "keywords": [
+        "node-red",
+        "ip",
+        "address",
+        "geo",
+        "location"
+    ],
+    "bugs": {
+        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location/issues"
+    },
+    "homepage": "https://github.com/bartbutenaers/node-red-contrib-ip-location",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location.git"
+    },
+    "node-red": {
+        "nodes": {
+            "ip-location-lite": "geo_ip_lite.js"
+        }
+    }
+}
