@@ -32,9 +32,10 @@ module.exports = function(RED) {
 
     function IpLocationLiteNode(config) {
         RED.nodes.createNode(this, config);
-        this.inputField  = config.inputField;
-        this.outputField = config.outputField;
-        this.downloading = false;
+        this.inputField    = config.inputField;
+        this.outputField   = config.outputField;
+        this.updateProcess = null;
+        this.progressDots  = "";
 
         var node = this;
         
@@ -46,33 +47,49 @@ module.exports = function(RED) {
                 return;
             }
             
-            if (inputValue === "download") {
-                /*TODO if (node.downloading) {
+            if (inputValue === "update") {
+                if (node.updateProcess) {
                     node.warn('The node is already busy downloading the data');
                     return;
-                }*/
-            
-                node.downloading = true;
+                }
                 
                 var command = "node " + geoipUpdateDbPath + " license_key=" + node.credentials.licenseKey;
                 
-                var child = exec(command, function (error, stdout, stderr) {
-                    console.log('stdout: ' + stdout);
-                    console.log('stderr: ' + stderr);
-                    if (error !== null) {
-                        console.log('exec error: ' + error);
+                node.updateProcess = require('child_process').exec(command);
+
+                // Keep track of the update process status, based on the stdout.
+                // See https://github.com/geoip-lite/node-geoip/issues/205
+                node.updateProcess.stdout.on('data', function(data) {
+                    if (node.progressDots.length > 5) {
+                        node.progressDots = "";
                     }
-                    node.downloading = false;
+                    else {
+                        node.progressDots += ".";
+                    }
+                    
+                    node.status({fill:"blue",shape:"dot",text:"updating " + node.progressDots});
+                    console.log(data);
+                    
+                    if (data.includes("Failed to Update Databases from MaxMind")) {
+                        node.updateProcess = null;
+                        node.status({fill:"red",shape:"dot",text:"update failed"});
+                        return;
+                    }
+                    
+                    if (data.includes('Successfully Updated Databases from MaxMind')) {
+                        node.updateProcess = null;
+
+                        // As soon as the data have been downloaded, it can be loaded.
+                        // Pull the files from MaxMind and handle the conversion from CSV. 
+                        // Please keep in mind this requires internet and MaxMind rate limits that amount of downloads on their servers.
+                        // You will need, at minimum, a free license key obtained from maxmind.com to run the update script.
+                        geoip.reloadDataSync();
+                        
+                        node.status({fill:"blue",shape:"dot",text:"updated"});
+                        return;
+                    }
                 });
-                return;
-            }
-            
-            if (inputValue === "reload") {
-                // Pull the files from MaxMind and handle the conversion from CSV. 
-                // Please keep in mind this requires internet and MaxMind rate limits that amount of downloads on their servers.
-                // You will need, at minimum, a free license key obtained from maxmind.com to run the update script.
-                geoip.reloadDataSync();
-                node.status({fill:"blue",shape:"dot",text:"reloaded"});
+                
                 return;
             }
             
@@ -100,6 +117,11 @@ module.exports = function(RED) {
         });
 
         node.on("close", function() {
+            // Interrupt the current update process
+            if (node.updateProcess) {
+                node.updateProcess.kill();
+            }
+            
             node.downloading = false;
             node.status({});
         });
