@@ -41,14 +41,14 @@ The advantage of sending the geo location result in another msg field, is that t
 
 ![JSON result](https://user-images.githubusercontent.com/14224149/83962569-bc8edd80-a89e-11ea-9ceb-4543ffa80c53.png)
 
-### Update local data
+### Update local database
 
-When this node is being installed, it already contains a set of data files.  So you can get started immediately.  However it is advised to update your local geo data from time to time, using following flow:
+When this node is being installed, it already contains a set of data files.  So you can get started immediately.  However it is advised to update your local geo database from time to time, using following flow:
 
-![Update data flow](https://user-images.githubusercontent.com/14224149/83962360-f19a3080-a89c-11ea-9f13-c450fc83376d.png)
+![Update db flow](https://user-images.githubusercontent.com/14224149/84084200-4b0c7780-a9e3-11ea-9436-68b77d599d2b.png)
 
 ```
-[{"id":"ef6a184e.c7e998","type":"ip-location-lite","z":"11289790.c89848","name":"","inputField":"payload","outputField":"payload","x":430,"y":820,"wires":[[]]},{"id":"862e5358.84171","type":"inject","z":"11289790.c89848","name":"Download","topic":"","payload":"download","payloadType":"str","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":220,"y":820,"wires":[["ef6a184e.c7e998"]]},{"id":"80b455de.21d248","type":"inject","z":"11289790.c89848","name":"Reload","topic":"","payload":"reload","payloadType":"str","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":210,"y":860,"wires":[["ef6a184e.c7e998"]]}]
+[{"id":"ef6a184e.c7e998","type":"ip-location-lite","z":"11289790.c89848","name":"","inputField":"payload","outputField":"payload","x":450,"y":820,"wires":[[]]},{"id":"862e5358.84171","type":"inject","z":"11289790.c89848","name":"Update database","topic":"","payload":"update","payloadType":"str","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":240,"y":820,"wires":[["ef6a184e.c7e998"]]}]
 ```
 
 The following steps need to be executed:
@@ -57,15 +57,17 @@ The following steps need to be executed:
 
 2. Generate a license key on your Maxmind account page.
 
-3. Download the new data files, by injecting an input message with `msg.payload = "download"`.
+3. Download the new data files, by injecting an input message with `msg.payload = "update"`.
 
-4. Unfortunately this node currently ***cannot*** determine whether the download is complete.  See this [issue](https://github.com/geoip-lite/node-geoip/issues/205) for more information about that.  Which means you will need to watch manually whether the download of the files is complete:
+4. The node status will change to *"updating ..."*, where the dots will be animated to visualize the database progress.
+
+5. As soon as the database is updated, the node status will change to *"updated"*.  
+
+   CAUTION: The updating process can take up to 30 minutes on a Raspberry, because more than 100 Mb needs to be downloaded.  Moreover MaxMind rate limits the amount of downloads on their servers.
+   
+6. At the end, the data files will be up-to-date:   
 
    ![data files](https://user-images.githubusercontent.com/14224149/83962705-ebf21a00-a89f-11ea-8959-1eb1b979b353.png)
-
-5. Load the downloaded data files into the system, by injecting an input message with `msg.payload = "reload"`.  After a fraction of a second, the node status will indicate that the load has been completed:
-
-   ![Status loaded](https://user-images.githubusercontent.com/14224149/83962745-3d9aa480-a8a0-11ea-8a77-c17b6ac34fb5.png)
 
 ## Node configuration
 
