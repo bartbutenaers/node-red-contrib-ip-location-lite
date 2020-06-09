@@ -34,7 +34,6 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, config);
         this.inputField    = config.inputField;
         this.outputField   = config.outputField;
-        this.updateProcess = null;
         this.progressDots  = "";
 
         var node = this;
@@ -71,15 +70,12 @@ module.exports = function(RED) {
                     console.log(data);
                     
                     if (data.includes("Failed to Update Databases from MaxMind")) {
-                        node.updateProcess = null;
                         node.status({fill:"red",shape:"dot",text:"update failed"});
                         return;
                     }
                     
                     if (data.includes('Successfully Updated Databases from MaxMind')) {
-                        node.updateProcess = null;
-
-                        // As soon as the data have been downloaded, it can be loaded.
+                         // As soon as the data have been downloaded, it can be loaded.
                         // Pull the files from MaxMind and handle the conversion from CSV. 
                         // Please keep in mind this requires internet and MaxMind rate limits that amount of downloads on their servers.
                         // You will need, at minimum, a free license key obtained from maxmind.com to run the update script.
@@ -88,6 +84,10 @@ module.exports = function(RED) {
                         node.status({fill:"blue",shape:"dot",text:"updated"});
                         return;
                     }
+                });
+                
+                node.updateProcess.on('close', function() {
+                    node.updateProcess = null;
                 });
                 
                 return;
@@ -120,6 +120,7 @@ module.exports = function(RED) {
             // Interrupt the current update process
             if (node.updateProcess) {
                 node.updateProcess.kill();
+                node.updateProcess = null;
             }
             
             node.downloading = false;
