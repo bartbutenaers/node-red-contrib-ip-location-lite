@@ -1,13 +1,11 @@
 # node-red-contrib-ip-location-lite
-Node-Red node to determine the geographic location of an IP address
-
-:warning: ***This is an experimental version !!!!  This version is published on Github to be able to discuss it on the Discourse forum...*** 
+Node-Red node to determine (locally) the geographic location of an IP address
 
 ## Install
 
 Run the following npm command in your Node-RED user directory (typically ~/.node-red):
 ```
-npm install bartbutenaers/node-red-contrib-ip-location-lite
+npm install node-red-contrib-ip-location-lite
 ```
 
 ## Support my Node-RED developments
@@ -22,10 +20,9 @@ This node determines ***offline*** the geographic location (country, region and 
 
 This node is a ***lite*** version, because the original (fully featured) Maxmind geoip npm package requires libgeoip to be installed on your system.  To avoid installation issues, this node uses the full Javascript [geoip-lite](https://github.com/geoip-lite/node-geoip) npm package (which has limited functionality).
 
-CAUTION: 
+Remarks:
 + Both IPv4 and IPv6 addresses are supported, however since the GeoLite IPv6 database does not currently contain any city or region information, city, region and postal code lookups are only supported for IPv4.
 + The geoip-lite package stores all data in RAM in order to be fast.
-+ The data files will use about 110 Mb of space on your filesystem.
 
 ### Get IP address location
 
@@ -42,6 +39,10 @@ The advantage of sending the geo location result in another msg field, is that t
 ![JSON result](https://user-images.githubusercontent.com/14224149/83962569-bc8edd80-a89e-11ea-9ceb-4543ffa80c53.png)
 
 ### Update local database
+
+:warning: CAUTION: 
++ The 'update' command will download about ***110 Mb*** data files to your filesystem.
++ The 'update' command will take about ***35 minutes*** on a Raspberry Pi 3. 
 
 When this node is being installed, it already contains a set of data files.  So you can get started immediately.  However it is advised to update your local geo database from time to time, using following flow:
 
@@ -62,12 +63,12 @@ The following steps need to be executed:
 4. The node status will change to *"updating ..."*, where the dots will be animated to visualize the database progress.
 
 5. As soon as the database is updated, the node status will change to *"updated"*.  
-
-   CAUTION: The updating process can take up to 30 minutes on a Raspberry, because more than 100 Mb needs to be downloaded.  Moreover MaxMind rate limits the amount of downloads on their servers.
    
 6. At the end, the data files will be up-to-date:   
 
    ![data files](https://user-images.githubusercontent.com/14224149/83962705-ebf21a00-a89f-11ea-8959-1eb1b979b353.png)
+   
+Remark: when the database is already up-to-date, then the status will change very fast from *"updating"* to *"updated"*.
 
 ## Node configuration
 
