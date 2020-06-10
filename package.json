@@ -1,5 +1,5 @@
 {
-    "name": "node-red-contrib-ip-location",
+    "name": "node-red-contrib-ip-location-lite",
     "version": "1.0.0",
     "description": "A Node-Red node to determine (locally) the geographic location of an IP address.",
     "dependencies": {
@@ -17,12 +17,12 @@
         "location"
     ],
     "bugs": {
-        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location/issues"
+        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location-lite/issues"
     },
-    "homepage": "https://github.com/bartbutenaers/node-red-contrib-ip-location",
+    "homepage": "https://github.com/bartbutenaers/node-red-contrib-ip-location-lite",
     "repository": {
         "type": "git",
-        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location.git"
+        "url": "https://github.com/bartbutenaers/node-red-contrib-ip-location-lite.git"
     },
     "node-red": {
         "nodes": {
