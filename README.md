@@ -1,5 +1,5 @@
 # node-red-contrib-ip-location-lite
-Node-Red node to determine (locally) the geographic location of an IP address
+Node-Red node to determine ***(locally)*** the geographic location of an IP address
 
 ## Install
 
