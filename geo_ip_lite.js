@@ -110,7 +110,7 @@ module.exports = function(RED) {
                 return;
             }
             
-            var statusText = "country " + geoInfo.country + " (" + geoInfo.region + ")";
+            var statusText = (geoInfo !== null) ? "country " + geoInfo.country + " (" + geoInfo.region + ")" : "Private or Invalid IP";
             node.status({fill:"blue",shape:"dot",text:statusText});
             
             node.send(msg);   
