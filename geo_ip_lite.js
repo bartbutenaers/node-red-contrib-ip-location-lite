@@ -14,9 +14,10 @@
  * limitations under the License.
  **/
 module.exports = function(RED) {
-    var geoip = require('geoip-lite');
-    var path = require('path');
-    var exec = require('child_process').exec;
+    var geoip   = require('geoip-lite');
+    var path    = require('path');
+    var exec    = require('child_process').exec;
+    //var ipRegex = require('ip-regex')
     
     // -------------------------------------------------------------------------------------------------
     // Determining the path to the files in the dependent geoip-lite module once.
@@ -93,13 +94,21 @@ module.exports = function(RED) {
                 return;
             }
             
-            // Test for valid ipv4 and ipv6 addresses (https://gist.github.com/pyrocat101/7568655#gistcomment-3208271)
-            if (!/((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/.test(inputValue)) {
+            // Test for valid ipv4 and ipv6 addresses
+            // Update: skip this test to avoid that this node allows less formats compared to the geoip node
+          /*  if (!ipRegex({exact: true}).test(inputValue)) {
                 node.status({fill:"red",shape:"dot",text:"invalid format"});
                 return;
+            }*/
+
+            try {
+                var geoInfo = geoip.lookup(inputValue);
             }
-            
-            var geoInfo = geoip.lookup(inputValue);
+            catch(err) {
+                node.error("Error getting location: " + err.message);
+                node.status({fill:"red",shape:"dot",text:"invalid ip"});
+                return;
+            }
             
             try {
                 // Set the converted value in the specified message field (of the original input message)
@@ -110,7 +119,7 @@ module.exports = function(RED) {
                 return;
             }
             
-            var statusText = (geoInfo !== null) ? "country " + geoInfo.country + " (" + geoInfo.region + ")" : "Private or Invalid IP";
+            var statusText = (geoInfo !== null) ? "country " + geoInfo.country + " (" + geoInfo.region + ")" : "private or invalid ip";
             node.status({fill:"blue",shape:"dot",text:statusText});
             
             node.send(msg);   
